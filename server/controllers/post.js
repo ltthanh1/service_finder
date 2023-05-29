@@ -33,7 +33,7 @@ const updatePost = asyncHandler(async (req, res) => {
   const response = await db.Post.update(req.body, { where: query });
   return res.json({
     success: response[0] > 0 ? true : false,
-    createdPost: response[0] > 0 ? 'Upadted' : 'Không tìm thấy bài viết',
+    createdPost: response[0] > 0 ? 'Updated' : 'Không tìm thấy bài viết',
   });
 });
 const deletedPost = asyncHandler(async (req, res) => {
@@ -171,6 +171,7 @@ const ratings = asyncHandler(async (req, res) => {
       mes: 'Missing inputs',
     });
   }
+
   if (!Number(score) || +score > 5 || +score < 0)
     return res.status(500).json({
       err: 1,
@@ -357,14 +358,14 @@ const getDashboard = asyncHandler(async (req, res) => {
       : false,
     chartData: [rent, eatery, other, user, views, postCount, userCount]
       ? {
-          rent,
-          eatery,
-          other,
-          ...views[0],
-          ...postCount[0],
-          ...userCount[0],
-          user,
-        }
+        rent,
+        eatery,
+        other,
+        ...views[0],
+        ...postCount[0],
+        ...userCount[0],
+        user,
+      }
       : 'Cannot get chart',
   });
 });
