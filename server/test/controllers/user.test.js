@@ -1537,3 +1537,135 @@ describe('getRoles', () => {
     });
   })
 })
+
+
+describe('updateUserByAdmin', () => {
+  it('should return Email đã được sử dụng ở một tài khoản khác.', async () => {
+    const req = {
+      params: {
+        uid: 1
+      },
+      body: {
+        role: 'R1',
+        email: 'thanhleomessi@gmail.com'
+      }
+    }
+    const res = {
+      json: jest.fn()
+    }
+    const user = {
+      id: 2,
+      name: 'thanh do',
+      email: 'thanhleomessi@gmail.com'
+    }
+    db.User.findOne = jest.fn().mockResolvedValue(user)
+    await updateUserByAdmin(req, res)
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      user: 'Email đã được sử dụng ở một tài khoản khác.'
+    })
+  })
+
+  it('should return Updated when update success', async () => {
+    const req = {
+      params: {
+        uid: 2
+      },
+      body: {
+        role: 'R1',
+        email: 'thanhdo@gmail.com',
+        name: 'thanh do',
+      }
+    }
+    const res = {
+      json: jest.fn()
+    }
+    jest.spyOn(db.User, 'update').mockResolvedValue([1]);
+    await updateUserByAdmin(req, res)
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      user: 'Updated'
+    })
+  })
+
+  it('should return user not found with mail thanhdo@gmail.com', async () => {
+    const req = {
+      params: {
+        uid: 2
+      },
+      body: {
+        role: 'R1',
+        email: 'thanhdo@gmail.com',
+        name: 'thanh do',
+      }
+    }
+    const res = {
+      json: jest.fn()
+    }
+    db.User.update = jest.fn().mockReturnValue([0]);
+    await updateUserByAdmin(req, res)
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      user: 'Không tìm thấy người dùng'
+    })
+  })
+
+  it('should return user not found with mail thanhleomessi@gmail.com', async () => {
+    const req = {
+      params: {
+        uid: 2
+      },
+      body: {
+        role: 'R1',
+        email: 'thanhleomessi@gmail.com',
+        name: 'thanh do',
+      }
+    }
+    const res = {
+      json: jest.fn()
+    }
+    db.User.update = jest.fn().mockReturnValue([0]);
+    await updateUserByAdmin(req, res)
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      user: 'Không tìm thấy người dùng'
+    })
+  })
+})
+
+describe('deleteUser', () => {
+
+  it('should delete user and related data', async () => {
+    const uid = 1
+    const response = await Promise.all([
+      db.User.destroy({ where: { id: uid } }),
+      db.Comment.destroy({ where: { uid: uid } }),
+      db.Vote.destroy({ where: { uid: uid } }),
+      db.Post.destroy({ where: { postedBy: uid } }),
+    ])
+    expect(response).toBeTruthy()
+
+  })
+
+  it('should delete user and return response success', async () => {
+    const req = {
+      params: {
+        uid: 1
+      }
+    }
+    const res = {
+      json: jest.fn()
+    }
+    db.User.destroy = jest.fn().mockResolvedValue(1)
+    await deleteUser(req, res)
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      mes: 'Xóa user thành công'
+    })
+  })
+
+
+
+
+})
+
