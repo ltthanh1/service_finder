@@ -44,15 +44,15 @@ const sendMail = require('../../controllers/sendmail');
 //   });
 // });
 
-describe('sendMail', () => {
-  it('sendMail should send email successfully', async () => {
-    // const email = 'test@example.com'
-    // const html = '<h1>Test email</h1>'
-    // const subject = 'Test email subject'
+// -------------------------------
+// describe('sendMail', () => {
 
-    // const info = await sendMail({ email, html, subject })
+//   it('sendMail', async () => {
+//     const email = 'test@example.com'
+//     const html = '<h1>Test email</h1>'
+//     const subject = 'Test email subject'
 
-    // expect(info).toBeDefined()
-    // expect(info.accepted).toContain(email)
-  });
-});
+//     const info = await sendMail({ email, html, subject })
+//     expect(info).toBeDefined()
+//   })
+// });

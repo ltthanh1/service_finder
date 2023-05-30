@@ -21,7 +21,6 @@ const {
 
 // Mock the dependencies if needed
 jest.mock('../../models');
-jest.mock('express-async-handler');
 //register
 // describe('register', () => {
 //   //TC1
@@ -1216,83 +1215,325 @@ jest.mock('express-async-handler');
 //   });
 // });
 
-describe('register', () => {
-  it('should throw an error if name, email or password is missing', async () => {
-    // const req = {
-    //   body: {
-    //     name: '',
-    //     email: '',
-    //     password: ''
-    //   }
-    // }
-    // const res = {
-    //   json: jest.fn()
-    // }
-    // const next = jest.fn()
-    // register(req, res, next)
+// describe('register', () => {
+// it('should throw an error if name, email or password is missing', async () => {
+//   const req = {
+//     body: {
+//       name: '',
+//       email: '',
+//       password: ''
+//     }
+//   }
+//   const res = {
+//     json: jest.fn()
+//   }
+//   // const next = jest.fn()
+//   register(req, res)
 
-    // expect(next).toHaveBeenCalledWith(new Error('Missing inputs'))
+//   expect(next).toHaveBeenCalledWith(new Error('Missing inputs'))
+// })
+
+// it('should create a new user if email is not used', async () => {
+//   const req = {
+//     body: {
+//       name: 'test',
+//       email: 'test@test.com',
+//       password: 'test'
+//     }
+//   }
+//   const res = {
+//     json: jest.fn()
+//   }
+//   const next = jest.fn()
+//   await register(req, res, next)
+//   const response = await db.User.findOne({ where: { email: 'test@test.com' } })
+//   expect(response).toBeTruthy()
+//   expect(response.email).toBe('notactived')
+//   expect(response.pass).toBe('test')
+//   expect(response.name).toBe('test')
+//   expect(response.id).toBeTruthy()
+// })
+
+// it('should send an email if email is not used', async () => {
+//   const req = {
+//     body: {
+//       name: 'test',
+//       email: 'test@test.com',
+//       password: 'test'
+//     }
+//   }
+//   const res = {
+//     json: jest.fn()
+//   }
+//   const next = jest.fn()
+//   await register(req, res, next)
+//   expect(sendMail).toHaveBeenCalled()
+// })
+
+// it('should not create a new user if email is already used', async () => {
+//   const req = {
+//     body: {
+//       name: 'test',
+//       email: 'test@test.com',
+//       password: 'test'
+//     }
+//   }
+//   const res = {
+//     json: jest.fn()
+//   }
+//   const next = jest.fn()
+//   await register(req, res, next)
+//   const response = await db.User.findOne({ where: { email: 'test@test.com' } })
+//   expect(response).toBeTruthy()
+//   expect(response.email).toBe('notactived')
+//   expect(response.pass).toBe('test')
+//   expect(response.name).toBe('test')
+//   expect(response.id).toBeTruthy()
+
+//   await register(req, res, next)
+//   const response2 = await db.User.findAll({ where: { email: 'test@test.com' } })
+//   expect(response2.length).toBe(1)
+// })
+// })
+
+// -------------------------------------------
+// describe('Test register', () => {
+//   it('should return Hãy check mail để kích hoạt tài khoản', async () => {
+//     const req = {
+//       body: {
+//         name: 'test',
+//         email: 'test@gmail.com',
+//         password: '123456'
+//       }
+//     }
+//     const res = {
+//       json: jest.fn()
+//     }
+//     await register(req, res)
+//     expect(res.json).toHaveBeenCalledWith({
+//       success: true,
+//       mes: 'Hãy check mail để kích hoạt tài khoản'
+//     })
+//   })
+// })
+
+
+describe('finalRegister', () => {
+  it('should return response redirect link confirm register', async () => {
+    const req = {
+      params: {
+        token: '123456',
+        email: 'test@test.com'
+      }
+    }
+    const res = {
+      redirect: jest.fn()
+    }
+    const findOneMock = jest.fn().mockResolvedValueOnce({ id: '123456' })
+    const updateMock = jest.fn().mockResolvedValueOnce([1])
+    db.User.findOne = findOneMock
+    db.User.update = updateMock
+    await finalRegister(req, res)
+    expect(updateMock).toHaveBeenCalled()
+    expect(res.redirect).toHaveBeenCalledWith(`${process.env.CLIENT_URI}/xac-nhan-dang-ky-tai-khoan/1`)
   })
 
-  // it('should create a new user if email is not used', async () => {
-  //   const req = {
-  //     body: {
-  //       name: 'test',
-  //       email: 'test@test.com',
-  //       password: 'test'
-  //     }
-  //   }
-  //   const res = {
-  //     json: jest.fn()
-  //   }
-  //   const next = jest.fn()
-  //   await register(req, res, next)
-  //   const response = await db.User.findOne({ where: { email: 'test@test.com' } })
-  //   expect(response).toBeTruthy()
-  //   expect(response.email).toBe('notactived')
-  //   expect(response.pass).toBe('test')
-  //   expect(response.name).toBe('test')
-  //   expect(response.id).toBeTruthy()
-  // })
+  it('should return response', async () => {
+    const req = {
+      params: {
+        token: '123456',
+        email: 'test@test.com'
+      }
+    }
+    const res = {
+      redirect: jest.fn()
+    }
+    const findOneMock = jest.fn().mockResolvedValueOnce({ id: '123456' })
+    const updateMock = jest.fn().mockResolvedValueOnce([0])
+    db.User.findOne = findOneMock
+    db.User.update = updateMock
+    await finalRegister(req, res)
+    expect(updateMock).toHaveBeenCalled()
+    expect(res.redirect).toHaveBeenCalledWith(`${process.env.CLIENT_URI}/xac-nhan-dang-ky-tai-khoan/0`)
+  })
+})
 
-  // it('should send an email if email is not used', async () => {
-  //   const req = {
-  //     body: {
-  //       name: 'test',
-  //       email: 'test@test.com',
-  //       password: 'test'
-  //     }
-  //   }
-  //   const res = {
-  //     json: jest.fn()
-  //   }
-  //   const next = jest.fn()
-  //   await register(req, res, next)
-  //   expect(sendMail).toHaveBeenCalled()
-  // })
+describe('adminRole', () => {
+  it('should return success true', async () => {
+    const req = {
+      user: {
+        role: 'admin'
+      }
+    }
+    const res = {
+      json: jest.fn()
+    }
+    await adminRole(req, res)
+    expect(res.json).toHaveBeenCalledWith({ success: true })
+  })
+})
 
-  // it('should not create a new user if email is already used', async () => {
-  //   const req = {
-  //     body: {
-  //       name: 'test',
-  //       email: 'test@test.com',
-  //       password: 'test'
-  //     }
-  //   }
-  //   const res = {
-  //     json: jest.fn()
-  //   }
-  //   const next = jest.fn()
-  //   await register(req, res, next)
-  //   const response = await db.User.findOne({ where: { email: 'test@test.com' } })
-  //   expect(response).toBeTruthy()
-  //   expect(response.email).toBe('notactived')
-  //   expect(response.pass).toBe('test')
-  //   expect(response.name).toBe('test')
-  //   expect(response.id).toBeTruthy()
+describe('login', () => {
+  it('should return response mail is not registered', async () => {
+    const req = {
+      body: {
+        email: 'thanhdo@gmail.com',
+        password: '123456'
+      }
+    }
+    const res = {
+      json: jest.fn()
+    }
+    await login(req, res)
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      mes: 'Email chưa được đăng ký!'
+    })
+  })
 
-  //   await register(req, res, next)
-  //   const response2 = await db.User.findAll({ where: { email: 'test@test.com' } })
-  //   expect(response2.length).toBe(1)
-  // })
+  it('email is null, password is 123456', async () => {
+    const req = {
+      body: {
+        email: '',
+        password: '123456'
+      }
+    }
+    const res = {
+      json: jest.fn()
+    }
+    await expect(login(req, res)).rejects.toThrow('Missing inputs');
+  })
+
+  it('email is null, password is 123456', async () => {
+    const req = {
+      body: {
+        email: 'thanhleomessi@gmail.com',
+        password: ''
+      }
+    }
+    const res = {
+      json: jest.fn()
+    }
+    await expect(login(req, res)).rejects.toThrow('Missing inputs');
+  })
+})
+
+describe('getUsers ', () => {
+  it('should return a list of users', async () => {
+    const req = {
+      query: {}
+    }
+    const res = {
+      json: jest.fn()
+    }
+
+    const users = [{
+      id: 1,
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      role: 'user',
+      posts: [{ id: 1 }, { id: 2 }],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }, {
+      id: 2,
+      name: 'Anna Doe',
+      email: 'anna@example.com',
+      role: 'user',
+      posts: [{ id: 3 }, { id: 4 }],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }];
+
+    db.User.findAndCountAll = jest.fn().mockResolvedValue(users)
+
+    await getUsers(req, res)
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      users
+    });
+  })
+})
+
+describe('getCurrent', () => {
+  it('should return user data', async () => {
+    const user = {
+      id: 1,
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      role: 'user',
+      posts: [{ id: 1 }, { id: 2 }],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    const req = { user: { uid: user.id } }
+    const res = { json: jest.fn() }
+    db.User.findOne = jest.fn().mockResolvedValue(user)
+    await getCurrent(req, res)
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      user,
+    })
+  })
+})
+
+describe('updateProfile', () => {
+  it('should return success message when email and phone are updated', async () => {
+    const req = {
+      user: {
+        uid: 1
+      },
+      body: {
+        email: 'thanhleomessi@gmail.com',
+        phone: '987654321'
+      }
+    }
+    const res = {
+      json: jest.fn()
+    }
+    jest.spyOn(db.User, 'update').mockResolvedValue([1]);
+    await updateProfile(req, res)
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      user: 'Cập nhật thành công'
+    })
+  })
+
+  it('should return email is used on other account when email and phone are provided', async () => {
+    const req = {
+      user: {
+        uid: 2
+      },
+      body: {
+        email: 'dotuanthanh@gmail.com',
+        phone: '987654321'
+      }
+    }
+    const res = {
+      json: jest.fn()
+    }
+    db.User.findOne = jest.fn().mockResolvedValue({ phone: '987654321' });
+    jest.spyOn(db.User, 'update').mockResolvedValue([1]);
+    await updateProfile(req, res)
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      user: 'Email đã được sử dụng ở một tài khoản khác.'
+    })
+  })
+})
+
+describe('getRoles', () => {
+  it('should return response', async () => {
+    const roles = [{ code: 'R1', value: 'Admin' }, { code: 'R2', value: 'Host' }]
+    const req = {}
+    const res = {
+      json: jest.fn()
+    }
+    db.Role.findAll = jest.fn().mockResolvedValue(roles)
+    await getRoles(req, res)
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      roles
+    });
+  })
 })
