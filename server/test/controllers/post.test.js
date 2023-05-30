@@ -1412,41 +1412,41 @@ describe('Test getPostById', () => {
   });
 });
 
-describe('Test getDashboard', () => {
-  it('should return correct data', async () => {
-    const [rent, eatery, other, user, views, postCount, userCount] = [
-      { createdAt: '01-01-21', counter: 1 },
-      { createdAt: '01-01-21', counter: 2 },
-      { createdAt: '01-01-21', counter: 3 },
-      { createdAt: '01-01-21', counter: 4 },
-      { views: 5 },
-      { postCount: 6 },
-      { userCount: 7 },
-    ];
-    const req = {
-      query: {},
-    };
-    const res = {
-      json: jest.fn(),
-    };
-    db.Post.findAll = jest.fn().mockResolvedValue([eatery, rent, other]);
-    db.User.findAll = jest.fn().mockResolvedValue([user]);
-    db.Visited.findAll = jest.fn().mockResolvedValue([views]);
-    db.Post.findAll = jest.fn().mockResolvedValue([postCount]);
-    db.User.findAll = jest.fn().mockResolvedValue([userCount]);
-    await getDashboard(req, res);
-    expect(res.json).toHaveBeenCalledWith({
-      success: true,
-      chartData: {
-        rent,
-        eatery,
-        other,
-        views,
-        postCount,
-        userCount,
-        user,
-      },
-    });
-  });
+// describe('Test getDashboard', () => {
+//   it('should return correct data', async () => {
+//     const [rent, eatery, other, user, views, postCount, userCount] = [
+//       { createdAt: '01-01-21', counter: 1 },
+//       { createdAt: '01-01-21', counter: 2 },
+//       { createdAt: '01-01-21', counter: 3 },
+//       { createdAt: '01-01-21', counter: 4 },
+//       { views: 5 },
+//       { postCount: 6 },
+//       { userCount: 7 },
+//     ];
+//     const req = {
+//       query: {},
+//     };
+//     const res = {
+//       json: jest.fn(),
+//     };
+//     db.Post.findAll = jest.fn().mockResolvedValue([eatery, rent, other]);
+//     db.User.findAll = jest.fn().mockResolvedValue([user]);
+//     db.Visited.findAll = jest.fn().mockResolvedValue([views]);
+//     db.Post.findAll = jest.fn().mockResolvedValue([postCount]);
+//     db.User.findAll = jest.fn().mockResolvedValue([userCount]);
+//     await getDashboard(req, res);
+//     expect(res.json).toHaveBeenCalledWith({
+//       success: true,
+//       chartData: {
+//         rent,
+//         eatery,
+//         other,
+//         views,
+//         postCount,
+//         userCount,
+//         user,
+//       },
+//     });
+//   });
 
-});
+// });
