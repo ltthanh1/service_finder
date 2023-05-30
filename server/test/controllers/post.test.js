@@ -1004,8 +1004,8 @@ describe('createPosts', () => {
 
 });
 
-describe('updatePost', () => {
-  it('should update post', async () => {
+describe('updatePost ', () => {
+  it('should update post with title, images, address, desc', async () => {
     const req = {
       params: {
         pid: '123',
@@ -1014,7 +1014,9 @@ describe('updatePost', () => {
         isAdmin: false,
         title: 'new title',
         content: 'new content',
-        images: ['new image'],
+        images: ['test.jpg'],
+        address: 'thôn 2, thạch thất, hà nội',
+        desc: 'desc mô tả chi tiết'
       },
       user: {
         uid: '456',
@@ -1029,7 +1031,7 @@ describe('updatePost', () => {
       {
         title: 'new title',
         content: 'new content',
-        images: ['new image'],
+        images: ['test.jpg'], address: 'thôn 2, thạch thất, hà nội', desc: 'desc mô tả chi tiết',
         isAdmin: false,
       },
       { where: { id: '123', postedBy: '456' } }
@@ -1041,10 +1043,10 @@ describe('updatePost', () => {
   });
 
 
-  it('should return Không tìm thấy bài viết', async () => {
+  it('should return post not found when title, images, address, desc', async () => {
     const req = {
       params: { pid: '123' },
-      body: { isAdmin: false },
+      body: { isAdmin: false, images: ['test.jpg'], address: 'thôn 2, thạch thất, hà nội', desc: 'desc mô tả chi tiết' },
       user: { uid: '456' },
       files: [{ path: 'image1' }, { path: 'image2' }],
     };
@@ -1060,10 +1062,10 @@ describe('updatePost', () => {
   });
 });
 
-describe('deletePost', () => {
-  it('should return Deleted', async () => {
+describe('deletePostById', () => {
+  it('deletePostById should return Deleted', async () => {
     const req = {
-      params: { pid: '123' },
+      params: { pid: '21759tglgspnf1r' },
       user: { uid: '456' },
     };
     const res = {
@@ -1077,9 +1079,9 @@ describe('deletePost', () => {
     });
   });
 
-  it('should return Không tìm thấy bài viết', async () => {
+  it('should return post not found', async () => {
     const req = {
-      params: { pid: '123' },
+      params: { pid: 'aaaaaaaaa' },
       user: { uid: '456' },
     };
     const res = {
@@ -1098,7 +1100,7 @@ describe('deletedPostByAdmin', () => {
   it('should return Deleted', async () => {
     const req = {
       params: {
-        pid: '123',
+        pid: '21759tglgspnf1r',
       },
     };
     const res = {
@@ -1112,10 +1114,10 @@ describe('deletedPostByAdmin', () => {
     });
   });
 
-  it('should return Không tìm thấy bài viết', async () => {
+  it('should return post not found', async () => {
     const req = {
       params: {
-        pid: '123',
+        pid: 'aaaaaaaa',
       },
     };
     const res = {
@@ -1149,6 +1151,7 @@ describe('getPosts', () => {
     const res = {
       json: jest.fn(),
     };
+    const next = jest.fn();
     const findAndCountAll = jest.fn().mockResolvedValue({
       rows: [
         {
@@ -1162,7 +1165,7 @@ describe('getPosts', () => {
       count: 1,
     });
     db.Post.findAndCountAll = findAndCountAll;
-    await getPosts(req, res);
+    await getPosts(req, res, next);
     expect(findAndCountAll).toHaveBeenCalledWith({
       where: {
         [Op.or]: [
@@ -1210,7 +1213,7 @@ describe('getPosts', () => {
     });
   });
 
-  it('should return Không tìm thấy bài viết', async () => {
+  it('should return post not found', async () => {
     const req = {
       query: {
         page: 1,
@@ -1235,6 +1238,7 @@ describe('getPosts', () => {
       posts: 'Không tìm thấy bài viết',
     });
   });
+
 });
 
 describe('getPostsByAdmin', () => {
@@ -1268,7 +1272,7 @@ describe('getPostsByAdmin', () => {
     });
   });
 
-  it('should return "Không tìm thấy bài viết" when no posts are found', async () => {
+  it('should return no posts are found', async () => {
     const req = {
       query: {},
     };
@@ -1358,7 +1362,147 @@ describe('ratings', () => {
     });
   });
 
-  it('should return error if score is less than 0', async () => {
+
+  it('should return post is not found if score is 5, post id is aaaaaa', async () => {
+    const req = {
+      user: { uid: 1 },
+      body: { pid: 'aaaaaa', score: 5 },
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    db.Post.findOne = jest.fn().mockReturnValue(null);
+    await ratings(req, res);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      err: 1,
+      mes: 'không tìm thấy bài viết',
+    });
+  });
+
+  it('should return missing inputs if no post id is provided, score is 5', async () => {
+    const req = {
+      user: { uid: 1 },
+      body: { score: 5 },
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    await ratings(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      err: 1,
+      mes: 'Missing inputs',
+    });
+  });
+
+  it('should return missing inputs if post id is aaaaaa, score is null and return missing inputs', async () => {
+    const req = {
+      user: { uid: 1 },
+      body: { pid: 'aaaaaa' },
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    await ratings(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      err: 1,
+      mes: 'Missing inputs',
+    });
+  });
+
+  it('should return missing inputs if post id is adsa213d, score is null and return missing inputs', async () => {
+    const req = {
+      user: { uid: 1 },
+      body: { pid: 'adsa213d' },
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    await ratings(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      err: 1,
+      mes: 'Missing inputs',
+    });
+  });
+
+  it('should return missing inputs if post id is not provided, score is null and return missing inputs', async () => {
+    const req = {
+      user: { uid: 1 },
+      body: {},
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    await ratings(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      err: 1,
+      mes: 'Missing inputs',
+    });
+  });
+
+  it('should return error if score is -1 and post id is adsa213d', async () => {
+    const req = {
+      user: { uid: 1 },
+      body: { pid: 'adsa213d', score: -1 },
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    db.Post.findOne = jest.fn().mockReturnValue(null);
+    await ratings(req, res);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      err: 1,
+      mes: 'The score must be less than 5 and greater than 0',
+    });
+  });
+
+  it('should return missing inputs if post id is not provided, score is -1 and return missing inputs', async () => {
+    const req = {
+      user: { uid: 1 },
+      body: { score: -1 },
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    await ratings(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      err: 1,
+      mes: 'Missing inputs',
+    });
+  });
+
+  it('should return The score must be less than 5 and greater than 0 if score is aaaaaa, post id is adsa213d', async () => {
+    const req = {
+      user: { uid: 1 },
+      body: { pid: 'adsa213d', score: 'aaaaaa' },
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    db.Post.findOne = jest.fn().mockReturnValue(null);
+    await ratings(req, res);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      err: 1,
+      mes: 'The score must be less than 5 and greater than 0',
+    });
+  });
+
+  it('should return The score must be less than 5 and greater than 0 if score is less than 0', async () => {
     const req = {
       user: { uid: 1 },
       body: { pid: 1, score: -1 },
@@ -1372,24 +1516,6 @@ describe('ratings', () => {
     expect(res.json).toHaveBeenCalledWith({
       err: 1,
       mes: 'The score must be less than 5 and greater than 0',
-    });
-  });
-
-  it('should return error if post is not found', async () => {
-    const req = {
-      user: { uid: 1 },
-      body: { pid: 1, score: 3 },
-    };
-    const res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    };
-    db.Post.findOne = jest.fn().mockReturnValue(null);
-    await ratings(req, res);
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
-      err: 1,
-      mes: 'không tìm thấy bài viết',
     });
   });
 
@@ -1433,7 +1559,7 @@ describe('ratings', () => {
   });
 });
 
-describe('Test getPostById', () => {
+describe('getPostById', () => {
   it('should return post not found', async () => {
     const req = { params: { pid: 1 } };
     const res = {
@@ -1451,7 +1577,7 @@ describe('Test getPostById', () => {
       post: 'Không tìm thấy bài viết',
     });
   });
-  it('should increment views and return response', async () => {
+  it('should increment views and return list of post', async () => {
     const post = { increment: jest.fn() };
     db.Post.findOne = jest.fn().mockResolvedValue(post);
     const req = { params: { pid: 1 } };

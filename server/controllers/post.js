@@ -56,7 +56,6 @@ const deletedPostByAdmin = asyncHandler(async (req, res) => {
 });
 const getPosts = asyncHandler(async (req, res) => {
   let { page, limit, offset, order, title, q, ...query } = req.query;
-
   const queries = {};
   const step = !page ? 0 : +page - 1;
   queries.limit = +limit || +process.env.POST_LIMIT;
@@ -89,6 +88,7 @@ const getPosts = asyncHandler(async (req, res) => {
     posts: response ? response : 'Không tìm thấy bài viết',
   });
 });
+
 const getPostsByAdmin = asyncHandler(async (req, res) => {
   let {
     page,
