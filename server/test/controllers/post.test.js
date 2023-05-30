@@ -922,8 +922,11 @@ describe('createPosts', () => {
     jest.clearAllMocks();
   });
 
-  it('should create a new post', async () => {
+  it('should create a new post, category is TNT, foodType is QA and have link image', async () => {
     db.Post.findOrCreate = jest.fn().mockResolvedValue([{}, true]);
+    req.body.category = 'TNT';
+    req.body.foodType = 'QA';
+    req.body.images = ['link image']
     await createPosts(req, res, next);
     expect(db.Post.findOrCreate).toHaveBeenCalled();
     expect(res.json).toHaveBeenCalledWith({
@@ -932,10 +935,61 @@ describe('createPosts', () => {
     });
   });
 
+  it('should not throw an error if title already exists, category is TNT, foodType is QA and have link image', async () => {
+    db.Post.findOne = jest.fn().mockResolvedValue({ title: 'Test title' });
+    req.body.title = 'Test title';
+    req.body.category = 'TNT';
+    req.body.foodType = 'QA';
+    req.body.images = ['link image']
+    await createPosts(req, res);
+    expect(db.Post.findOrCreate).toHaveBeenCalled();
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      mes: 'Tạo bài đăng thành công',
+    });
+  });
+
+  it('should throw an error if title is missing, category is TNT, foodType is QA and have link image', async () => {
+    req.body.title = '';
+    req.body.category = 'TNT';
+    req.body.foodType = 'QA';
+    req.body.images = ['link image']
+    await expect(createPosts(req, res)).rejects.toThrow('Missing inputs');
+
+  });
+
+  it('should create a new post, category is missing, foodType is QA and have link image', async () => {
+    db.Post.findOrCreate = jest.fn().mockResolvedValue([{}, true]);
+    await createPosts(req, res, next);
+    expect(db.Post.findOrCreate).toHaveBeenCalled();
+    req.body.category = '';
+    req.body.foodType = 'QA';
+    req.body.images = ['link image']
+    await expect(createPosts(req, res)).rejects.toThrow('Missing inputs');
+  });
+
+  it('should throw an error if title already exists, category is missing, foodType is QA and have link image', async () => {
+    db.Post.findOne = jest.fn().mockResolvedValue({ title: 'Test title' });
+    req.body.title = 'Test title';
+    req.body.category = '';
+    req.body.foodType = 'QA';
+    req.body.images = ['link image']
+    await expect(createPosts(req, res)).rejects.toThrow('Missing inputs');
+
+  });
+
+  it('should throw an error if title and category are missing, foodType is QA and have link image', async () => {
+    req.body.title = '';
+    req.body.category = 'TNT';
+    req.body.foodType = 'QA';
+    req.body.images = ['link image']
+    await expect(createPosts(req, res)).rejects.toThrow('Missing inputs');
+
+  });
+
   it('should throw an error if missing inputs', async () => {
     req.body.title = '';
     await expect(createPosts(req, res)).rejects.toThrow('Missing inputs');
-
   });
 
   it('should throw an error if title already exists', async () => {
@@ -947,7 +1001,6 @@ describe('createPosts', () => {
       mes: 'Tựa đề bài đăng không được trùng nhau',
     });
   });
-
 
 });
 
