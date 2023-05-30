@@ -6,7 +6,7 @@ const createComment = asyncHandler(async (req, res) => {
     const { uid } = req.user
     if (!pid || !content) return res.status(400).json({
         err: 1,
-        mes: 'Missing product ID'
+        mes: 'missing input'
     })
     const body = { uid, ...req.body }
     const response = await db.Comment.create({ ...body, id: 'idTest' })
