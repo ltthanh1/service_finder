@@ -1298,23 +1298,24 @@ jest.mock('../../models');
 
 // -------------------------------------------
 describe('Test register', () => {
-  // it('should return Hãy check mail để kích hoạt tài khoản', async () => {
-  //   const req = {
-  //     body: {
-  //       name: 'test',
-  //       email: 'test@gmail.com',
-  //       password: '123456'
-  //     }
-  //   }
-  //   const res = {
-  //     json: jest.fn()
-  //   }
-  //   await register(req, res)
-  //   expect(res.json).toHaveBeenCalledWith({
-  //     success: true,
-  //     mes: 'Hãy check mail để kích hoạt tài khoản'
-  //   })
-  // })
+  it('register with name, email, password should return please check mail to activate account', async () => {
+    const req = {
+      body: {
+        name: 'thanh do',
+        email: 'thanhleomessi@gmail.com',
+        password: '123456'
+      }
+    }
+    const res = {
+      json: jest.fn()
+    }
+    await register(req, res)
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      mes: 'Hãy check mail để kích hoạt tài khoản'
+    })
+  })
+
   it('email is admin@gmail.com, name is thanh do, password is 123456 should return Email is registered', async () => {
     const req = {
       body: {
@@ -1349,7 +1350,6 @@ describe('Test register', () => {
       json: jest.fn()
 
     }
-    // await expect(register(req, res)).rejects.toThrow('Missing inputs');
 
   })
 
@@ -1520,7 +1520,7 @@ describe('login', () => {
     await expect(login(req, res)).rejects.toThrow('Missing inputs');
   })
 
-  it('email is null, password is 123456', async () => {
+  it('email is thanhleomessi@gmail.com, password is null', async () => {
     const req = {
       body: {
         email: 'thanhleomessi@gmail.com',
@@ -1532,6 +1532,7 @@ describe('login', () => {
     }
     await expect(login(req, res)).rejects.toThrow('Missing inputs');
   })
+
 })
 
 describe('getUsers ', () => {
