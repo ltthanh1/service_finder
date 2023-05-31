@@ -1297,25 +1297,141 @@ jest.mock('../../models');
 // })
 
 // -------------------------------------------
-// describe('Test register', () => {
-//   it('should return Hãy check mail để kích hoạt tài khoản', async () => {
-//     const req = {
-//       body: {
-//         name: 'test',
-//         email: 'test@gmail.com',
-//         password: '123456'
-//       }
-//     }
-//     const res = {
-//       json: jest.fn()
-//     }
-//     await register(req, res)
-//     expect(res.json).toHaveBeenCalledWith({
-//       success: true,
-//       mes: 'Hãy check mail để kích hoạt tài khoản'
-//     })
-//   })
-// })
+describe('Test register', () => {
+  // it('should return Hãy check mail để kích hoạt tài khoản', async () => {
+  //   const req = {
+  //     body: {
+  //       name: 'test',
+  //       email: 'test@gmail.com',
+  //       password: '123456'
+  //     }
+  //   }
+  //   const res = {
+  //     json: jest.fn()
+  //   }
+  //   await register(req, res)
+  //   expect(res.json).toHaveBeenCalledWith({
+  //     success: true,
+  //     mes: 'Hãy check mail để kích hoạt tài khoản'
+  //   })
+  // })
+  it('email is admin@gmail.com, name is thanh do, password is 123456 should return Email is registered', async () => {
+    const req = {
+      body: {
+        name: 'thanh do',
+        email: 'admin@gmail.com',
+        password: '123456'
+      }
+    }
+    const res = {
+      json: jest.fn()
+    }
+    const user = {
+      email: 'admin@gmail.com'
+    }
+    db.User.findOne = jest.fn().mockReturnValue(user)
+    await register(req, res)
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      mes: 'Email đã được đăng ký'
+    })
+  })
+
+  it('email is admin@gmail.com, name is empty, password is 123456 should return Missing inputs', async () => {
+    const req = {
+      body: {
+        name: 'thanh do',
+        email: 'admin@gmail.com',
+        password: '123456'
+      }
+    }
+    const res = {
+      json: jest.fn()
+
+    }
+    // await expect(register(req, res)).rejects.toThrow('Missing inputs');
+
+  })
+
+  it('email is thanhleomessi@gmail.com, name is empty, password is 123456 should return Missing inputs', async () => {
+    const req = {
+      body: {
+        name: '',
+        email: 'thanhleomessi@gmail.com',
+        password: '123456'
+      }
+    }
+    const res = {
+      json: jest.fn()
+
+    }
+    await expect(register(req, res)).rejects.toThrow('Missing inputs');
+
+  })
+  it('email is admin@gmail.com, name is empty, password is 123456 should return Missing inputs', async () => {
+    const req = {
+      body: {
+        name: '',
+        email: 'admin@gmail.com',
+        password: '123456'
+      }
+    }
+    const res = {
+      json: jest.fn()
+
+    }
+    await expect(register(req, res)).rejects.toThrow('Missing inputs');
+
+  })
+
+  it('email is empty, name is thanh do, password is 123456 should return Missing inputs', async () => {
+    const req = {
+      body: {
+        name: 'thanh do',
+        email: '',
+        password: '123456'
+      }
+    }
+    const res = {
+      json: jest.fn()
+
+    }
+    await expect(register(req, res)).rejects.toThrow('Missing inputs');
+
+  })
+
+  it('email is thanhleomessi@gmail.com, name is thanh do, password is empty should return Missing inputs', async () => {
+    const req = {
+      body: {
+        name: 'thanh do',
+        email: '',
+        password: ''
+      }
+    }
+    const res = {
+      json: jest.fn()
+
+    }
+    await expect(register(req, res)).rejects.toThrow('Missing inputs');
+
+  })
+
+  it('email is empty, name is empty, password is empty should return Missing inputs', async () => {
+    const req = {
+      body: {
+        name: '',
+        email: '',
+        password: ''
+      }
+    }
+    const res = {
+      json: jest.fn()
+
+    }
+    await expect(register(req, res)).rejects.toThrow('Missing inputs');
+
+  })
+})
 
 
 describe('finalRegister', () => {
