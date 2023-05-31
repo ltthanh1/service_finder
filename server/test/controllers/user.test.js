@@ -1665,7 +1665,162 @@ describe('deleteUser', () => {
   })
 
 
+  // it('should delete user and return response user not found', async () => {
+  //   const req = {
+  //     params: {
+  //       uid: 1
+  //     }
+  //   }
+  //   const res = {
+  //     json: jest.fn()
+  //   }
+  //   db.User.destroy = jest.fn().mockResolvedValue(null)
+  //   const uid = 1
+  //   db.User.destroy = jest.fn().mockResolvedValue([0])
+  //   db.Comment.destroy = jest.fn().mockResolvedValue([0])
+  //   db.Vote.destroy = jest.fn().mockResolvedValue([0])
+  //   db.Post.destroy = jest.fn().mockResolvedValue([0])
 
 
+  //   db.User.destroy = jest.fn().mockResolvedValue(detroyUser)
+
+  //   await deleteUser(req, res)
+  //   expect(res.json).toHaveBeenCalledWith({
+  //     success: false,
+  //     mes: 'Không tìm thấy người dùng'
+  //   })
+  // })
 })
 
+describe('forgotPassword', () => {
+  // it('should return Vui lòng check mail của bạn.', async () => {
+  //   const req = {
+  //     body: {
+  //       email: 'test@test.com'
+  //     }
+  //   }
+  //   const res = {
+  //     status: jest.fn().mockReturnThis(),
+  //     json: jest.fn()
+  //   }
+  //   await forgotPassword(req, res)
+  //   expect(res.status).toHaveBeenCalledWith(500)
+  //   expect(res.json).toHaveBeenCalledWith({
+  //     err: 0,
+  //     mes: 'Vui lòng check mail của bạn.'
+  //   })
+  // })
+
+  it('forgotPassword should return Missing inputs', () => {
+    const req = { body: {} }
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    }
+    forgotPassword(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith({
+      err: 1,
+      mes: "Missing inputs"
+    })
+  })
+
+  it('should return Email is not registered', async () => {
+    const req = {
+      body: {
+        email: 'notregisteredemail@gmail.com'
+      }
+    }
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    }
+    const findOneSpy = jest.spyOn(db.User, 'findOne').mockResolvedValue(null)
+    await forgotPassword(req, res)
+    expect(findOneSpy).toHaveBeenCalledWith({ where: { email: req.body.email } })
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({
+      err: -1,
+      mes: 'Email chưa được đăng ký!'
+    })
+    findOneSpy.mockRestore()
+  })
+})
+
+describe('resetPassword', () => {
+  it('provide password and missing token ', async () => {
+    const req = {
+      body: { pass: '123456' }
+    }
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    }
+    await resetPassword(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith({
+      err: 1,
+      mes: "Missing inputs"
+    })
+  })
+  it('password and token are missing', async () => {
+    const req = {
+      body: {}
+    }
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    }
+    await resetPassword(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith({
+      err: 1,
+      mes: "Missing inputs"
+    })
+  })
+  it('provide token aaaaaaaaa and password 123456 should return Something went wrong', async () => {
+    const req = {
+      body: {
+        token: 'aaaaaaaaa',
+        password: '123456'
+      }
+    }
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    }
+    await resetPassword(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith({
+      err: 1,
+      mes: 'Something went wrong'
+    })
+  })
+
+  // it('should return password reset success', async () => {
+  //   const req = {
+  //     body: {
+  //       token: '201381asdadask212',
+  //       password: '123456'
+  //     }
+  //   }
+  //   const res = {
+  //     status: jest.fn().mockReturnThis(),
+  //     json: jest.fn()
+  //   }
+  //   const db = {
+  //     User: {
+  //       findOne: jest.fn().mockResolvedValue({
+  //         id: 1
+  //       }),
+  //       update: jest.fn().mockResolvedValue([1])
+  //     }
+  //   }
+  //   await resetPassword(req, res, null, db)
+  //   expect(res.status).toHaveBeenCalledWith(200)
+  //   expect(res.json).toHaveBeenCalledWith({
+  //     err: 0,
+  //     mes: 'Reset mật khẩu thành công.'
+  //   })
+  // })
+})
